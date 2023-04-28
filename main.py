@@ -1,6 +1,7 @@
 ### toolkit
 import data_manager as dm
 
+import os
 import pandas as pd
 
 import plotly.express as px
@@ -9,6 +10,8 @@ import plotly.graph_objs as go
 import dash
 from dash import dcc
 from dash import html
+import dash_bootstrap_components as dbc
+from dash.dependencies import Input, Output
 
 
 ### load data
@@ -17,7 +20,7 @@ data_manager = dm.DataManager(df_name)
 df = data_manager.df
 
 
-app = dash.Dash(__name__)
+app = dash.Dash(__name__, external_stylesheets=[dbc.themes.BOOTSTRAP])
 
 # -------------------------------------------------#
 def empty_choropleth():
@@ -153,7 +156,7 @@ def generate_choropleth(desired_source, desired_metric, desired_year):
 main_style = {'font-family': 'Arial', 'max-width':'1200px', 'align-content':'center', 'margin':'auto', 'padding':'20px'}
 
 # -------------------------------------------------#
-app.layout = html.Div([
+main_layout = html.Div([
     html.H1("Energy Data Visualization", style={'text-align':'center', 'font-family': 'Arial', 'size':'50px'}),
     html.Div(children=[
         html.Div(children = [
@@ -253,6 +256,29 @@ def update_trend_chart(source, metric, clickData, year):
     
     return fig, country_title
 
+home_layout = html.Div([
+    dbc.Alert([
+        html.H1("Welcome to my Dash app!", className="display-3"),
+        html.P("This is the opening page of my app. Click the button below to go to the next page."),
+        html.Hr(),
+        dbc.Button("Go to Graphs", color="primary", href="/graphs")
+    ], className="text-center")
+])
+
+app.layout = html.Div([
+    dcc.Location(id='url', refresh=False),
+    html.Div(id='page-content')
+])
+
+@app.callback(Output('page-content', 'children'),
+              [Input('url', 'pathname')])
+def display_page(pathname):
+    if pathname == '/':
+        return home_layout
+    elif pathname == '/graphs':
+        return main_layout
+    else:
+        return '404 Page Not Found'
 
 if __name__ == '__main__':
-    app.run_server(debug=True)
+    app.run_server(debug=False)

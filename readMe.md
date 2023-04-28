@@ -4,6 +4,7 @@ pip install pandas
 pip install pycountry
 pip install plotly
 pip install dash
+pip install dash_bootstrap_components
 ```
 
 # Steps to Run Dashboard
